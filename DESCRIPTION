@@ -1,0 +1,28 @@
+Package: coreqmapr
+Type: Package
+Title: Post-processing For Lake Sediment Core Models
+Version: 0.1.0
+Authors@R: c(
+    person(
+      "William", "Chapman",
+      email = "william.m.chapman@mail.mcgill.ca",
+      role = c("aut", "cre")
+    )
+  )
+Description: Provides an interface to adjust downcore predicted values of
+  modelled lake sediment characteristics using known values at the top of the 
+  core. Implements techniques similar to Empirical Quantile Mapping (EQM) and
+  Quantile Delta Mapping (QDM) to adjust downcore predictions probabilistically.
+License: MIT + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Config/roxygen2/version: 8.0.0
+Roxygen: list(markdown = TRUE)
+Imports:
+  graphics,
+  stats,
+  dplyr,
+  tidyr,
+  tidyselect,
+  purrr,
+  imputeTS
