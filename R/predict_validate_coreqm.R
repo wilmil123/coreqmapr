@@ -1,17 +1,71 @@
+#' Whole-core predictions using a `coreqm` object
+#'
+#' This predict method will apply the adjustments from a `coreqm` object to
+#' transform downcore values based on the top-of-core adjustments. Variance
+#' flattening using 210Pb-inferred dates is also available.
+#'
+#' @details
+#' If either `pb_dates` or `date_col` is (correctly) supplied, the variances
+#' of downcore measurements will be flattened according to the number of years
+#' contained in each interval in comparison with the first interval. If `pb_dates`
+#' is supplied, the flattening will be done according to the full dating profile
+#' provided. If `date_col` is supplied, with a properly matching column in
+#' `core_vals`, interval widths will be inferred from the modulus of the interval
+#' midpoint, and dates will be linearly interpolated up and down to get the date
+#' range of the interval.
+#' If no variance flattening is desired, leave both `pb_dates` and `date_col`
+#' as `NULL`.
+#'
+#' @param object An object of type `"coreqm"`. See `core_qmap()`, which
+#' creates these objects.
+#' @param core_vals **A data frame** with at least 3 columns (in order):
+#' 1. Column of site/sample IDs.
+#' 2. Column of midpoint depths for intervals.
+#' 3. Column of original predicted values for each interval.
+#' 4. Column of 210Pb dates for each interval (optional).
+#' Any columns beyond these first 4 will be ignored.
+#' @param pb_dates **A data frame** (optional) that contains a 210Pb dating
+#' profile for each core to be adjusted. If supplied, must contain at least 3
+#' columns (in order):
+#' 1. Column of site/sample IDs to match with `core_vals`.
+#' 2. Column of interval top/bottom/midpoint depths.
+#' 3. Column of inferred 210Pb ages by interval depth.
+#' Any columns beyond the first 3 will be ignored.
+#' @param date_col **String.** (optional) If supplying a 4th column to `core_vals`,
+#' the name of the column containing 210Pb-inferred dates.
+#' @param conf_alpha **Float.** The alpha value to use for calculating confidence
+#' intervals. Default is `0.05`.
+#' @param quiet **Boolean.** If `FALSE` (default), information about weight
+#' searching and potential issues will be printed to the console. If `TRUE`,
+#' nothing will be printed unless the function encounters a fatal error.
+#' @param clamp_zeroes **Boolean.** Transforming inferred core values in this
+#' way can sometimes result in downcore values < 0. If `TRUE` (default), any
+#' value below 0 will be clamped to 0. If `FALSE`, no clamping is performed.
+#' @param ... Unused.
+#'
+#' @returns A data frame based on `core_vals` with the following additional
+#' columns:
+#' \item{transformed_val}{Transformed values of the input measure.}
+#' \item{.ci_lower_rng}{Lower range-based C.I.}
+#' \item{.ci_upper_rng}{Upper range-based C.I.}
+#' \item{.ci_lower_prb}{Lower distribution-based C.I.}
+#' \item{.ci_upper_prb}{Upper distribution-based C.I.}
+#'
 #' @export
-predict.coreqm <- function(coreqm_obj,
+predict.coreqm <- function(object,
                            core_vals,
                            pb_dates = NULL,
                            date_col = NULL,
                            conf_alpha = 0.05,
                            quiet = FALSE,
-                           clamp_zeroes = TRUE) {
+                           clamp_zeroes = TRUE,
+                           ...) {
   # within core_vals
   # column 1 is sample ID
   # column 2 is midpoint
   # column 3 is values
   # optional 4th column is for pb date values
-  validation_df <- validate_coreqm(coreqm_obj)
+  validation_df <- validate_coreqm(object)
   validation_top_ecdf <- construct_ecdf_obj(validation_df$transformed_top_val,
                                             precision = 4,
                                             method = "linear")
@@ -32,18 +86,18 @@ predict.coreqm <- function(coreqm_obj,
     within_site_sd <- stats::sd(current_site[, 3], na.rm = TRUE)
     within_core_z <- (current_site[, 3] - within_site_mean) / within_site_sd
     transformed_params_match_id <- lapply(within_site_mean, function(mean) {
-      min_diff_to_model_vals <- min(abs(mean - coreqm_obj$internal_data$core_mean))
+      min_diff_to_model_vals <- min(abs(mean - object$internal_data$core_mean))
       if (min_diff_to_model_vals > 0.0001) {
         # warning("The closest site in the model to the current site is more than 0.1 units away. Are you sure this site is properly represented in the data?")
         return(NA)
       }
-      id_of_matched_val <- which.min(abs(mean - coreqm_obj$internal_data$core_mean))
-      adj_mean <- coreqm_obj$opt_means[id_of_matched_val]
-      adj_sd <- coreqm_obj$opt_sds[id_of_matched_val]
-      adj_mean_cil <- coreqm_obj$opt_means_ci$ci_lower[id_of_matched_val]
-      adj_mean_ciu <- coreqm_obj$opt_means_ci$ci_upper[id_of_matched_val]
-      adj_sd_cil <- coreqm_obj$opt_sds_ci$ci_lower[id_of_matched_val]
-      adj_sd_ciu <- coreqm_obj$opt_sds_ci$ci_upper[id_of_matched_val]
+      id_of_matched_val <- which.min(abs(mean - object$internal_data$core_mean))
+      adj_mean <- object$opt_means[id_of_matched_val]
+      adj_sd <- object$opt_sds[id_of_matched_val]
+      adj_mean_cil <- object$opt_means_ci$ci_lower[id_of_matched_val]
+      adj_mean_ciu <- object$opt_means_ci$ci_upper[id_of_matched_val]
+      adj_sd_cil <- object$opt_sds_ci$ci_lower[id_of_matched_val]
+      adj_sd_ciu <- object$opt_sds_ci$ci_upper[id_of_matched_val]
       params_df <- data.frame(
         adj_mean = adj_mean,
         adj_sd = adj_sd,
