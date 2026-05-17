@@ -224,7 +224,6 @@ predict.coreqm <- function(object,
   return_df <- dplyr::full_join(core_vals,
                                 transformed_within_site,
                                 by = c(colnames(core_vals)[1], colnames(core_vals)[3]))
-  return(return_df)
 }
 
 #' Validate a coreqm object
@@ -284,5 +283,4 @@ validate_coreqm <- function(coreqm_obj,
     .ci_lower_prb = top_vals_ci$ci_lower,
     .ci_upper_prb = top_vals_ci$ci_upper
   )
-  return(pred_df)
 }

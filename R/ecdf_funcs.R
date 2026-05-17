@@ -1,8 +1,6 @@
 construct_ecdf_obj <- function(in_vec, precision, method) {
-  ecdf_obj <- interpolate_ecdf(expand_ecdf(calc_custom_ecdf(in_vec), precision = precision),
-                               method = method)
-  class(ecdf_obj) <- c("qmrecdf", class(ecdf_obj))
-  return(ecdf_obj)
+  ecdf_obj <- structure(interpolate_ecdf(expand_ecdf(calc_custom_ecdf(in_vec), precision = precision), method = method),
+                        class = c("qmrecdf", "data.frame"))
 }
 
 calc_custom_ecdf <- function(in_vec) {
@@ -10,7 +8,7 @@ calc_custom_ecdf <- function(in_vec) {
   distributions <- vapply(seq_along(vec_inorder), function(index) {
     return(sum(vec_inorder <= vec_inorder[index]) / length(in_vec))
   }, double(1))
-  return(data.frame(value = vec_inorder, prob = distributions))
+  out_df <- data.frame(value = vec_inorder, prob = distributions)
 }
 
 expand_ecdf <- function(ecdf_obj, precision = 4) {
@@ -33,20 +31,18 @@ expand_ecdf <- function(ecdf_obj, precision = 4) {
 
   expanded_ecdf <- tidyr::complete(ecdf_obj, prob = round(seq(0, 1, by = 1 /
                                                                 (10 ** precision)), precision))
-  return(expanded_ecdf)
 }
 
 interpolate_ecdf <- function(exp_ecdf_obj, method = "linear") {
   interp_ecdf <- exp_ecdf_obj
   interp_ecdf$value <- imputeTS::na_interpolation(interp_ecdf$value, option = method)
   interp_ecdf$interp_flag <- ifelse(interp_ecdf$value %in% exp_ecdf_obj$value, TRUE, FALSE)
-  return(interp_ecdf)
 }
 
 forward_ecdf_lookup <- function(ecdf_obj, value) {
-  return(ecdf_obj$prob[which.min(abs(ecdf_obj$value - value))])
+  lookup_val <- ecdf_obj$prob[which.min(abs(ecdf_obj$value - value))]
 }
 
 reverse_ecdf_lookup <- function(ecdf_obj, prob) {
-  return(ecdf_obj$value[which.min(abs(ecdf_obj$prob - prob))])
+  lookup_val <- ecdf_obj$value[which.min(abs(ecdf_obj$prob - prob))]
 }

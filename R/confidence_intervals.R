@@ -11,7 +11,7 @@ calc_wald_confint <- function(ecdf_obj, prob_i, alpha = 0.05) {
   if (ci_upper > 1) {
     ci_upper <- 1
   }
-  return(list(ci_lower = ci_lower, ci_upper = ci_upper))
+  ci_list <- list(ci_lower = ci_lower, ci_upper = ci_upper)
 }
 
 construct_ci_from_distribution <- function(ecdf_obj, series, conf_alpha) {
@@ -25,7 +25,6 @@ construct_ci_from_distribution <- function(ecdf_obj, series, conf_alpha) {
     return(item_ci)
   })
   series_ci <- dplyr::bind_rows(series_ci)
-  return(series_ci)
 }
 
 construct_ci_from_sl_range <- function(top_z, mean_cil, mean_ciu, sd_cil, sd_ciu) {
@@ -48,5 +47,5 @@ construct_ci_from_sl_range <- function(top_z, mean_cil, mean_ciu, sd_cil, sd_ciu
         ci_lower_lower[ci_val])
   })
 
-  return(data.frame(ci_lower = ci_lower, ci_upper = ci_upper))
+  out_df <- data.frame(ci_lower = ci_lower, ci_upper = ci_upper)
 }

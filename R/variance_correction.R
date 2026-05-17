@@ -23,8 +23,6 @@ infer_daterange_with_datecol <- function(midpoint_col, age_col) {
                                  expanded_data$interp_midpoint %in% midpoint_col)
   age_diffs_df <- data.frame(midpoint = expanded_data_subset$interp_midpoint,
                              age_diff = expanded_data_subset$age_diffs)
-
-  return(age_diffs_df)
 }
 
 infer_daterange_with_fulldates <- function(pbdates) {
@@ -42,7 +40,6 @@ infer_daterange_with_fulldates <- function(pbdates) {
   }
 
   age_diffs_df <- data.frame(midpoint = half_intervals[, 2], age_diff = age_diffs)
-  return(age_diffs_df)
 }
 
 correct_sd <- function(sdev, age_diffs) {
@@ -52,5 +49,4 @@ correct_sd <- function(sdev, age_diffs) {
   corrected_sd <- sqrt(scaled_variance)
   matched_df <- data.frame(midpoint = age_diffs$midpoint, corrected_sd = corrected_sd)
   print(matched_df)
-  return(matched_df)
 }

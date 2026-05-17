@@ -51,8 +51,6 @@ transform_distributions <- function(hist_ecdf,
            } else {
              stop("Unknown delta transform type.")
            }
-
-           return(corrected_proj)
          },
          "empirical" = {
            if (length(weighting) != 1)
@@ -61,7 +59,6 @@ transform_distributions <- function(hist_ecdf,
            hist_quantile <- forward_ecdf_lookup(hist_ecdf, hist_val)
            adj_quantile <- (hist_quantile * (1 - weighting)) + (err_quantile * weighting)
            corrected_proj <- reverse_ecdf_lookup(adj_ecdf, adj_quantile)
-           return(corrected_proj)
          },
          stop("Something went wrong :("))
 }
@@ -357,29 +354,32 @@ find_optimal_weight <- function(hist_mean_ecdf,
       }
     }
     if (qmap_method == "empirical") {
-      err_mat <- data.frame(
-        iteration = out_iterations,
-        w1 = out_w1,
-        w2 = out_w2,
-        fit = out_fits,
-        best_fit = out_bestfits,
-        temperature = out_temps
+      err_mat <- structure(
+        data.frame(
+          iteration = out_iterations,
+          w1 = out_w1,
+          w2 = out_w2,
+          fit = out_fits,
+          best_fit = out_bestfits,
+          temperature = out_temps
+        ),
+        class = c("qmerrmat", "data.frame")
       )
     } else if (qmap_method == "delta") {
-      err_mat <- data.frame(
-        iteration = out_iterations,
-        w1 = out_w1,
-        w2 = out_w2,
-        w3 = out_w3,
-        w4 = out_w4,
-        fit = out_fits,
-        best_fit = out_bestfits,
-        temperature = out_temps
+      err_mat <- structure(
+        data.frame(
+          iteration = out_iterations,
+          w1 = out_w1,
+          w2 = out_w2,
+          w3 = out_w3,
+          w4 = out_w4,
+          fit = out_fits,
+          best_fit = out_bestfits,
+          temperature = out_temps
+        ),
+        class = c("qmerrmat", "data.frame")
       )
     }
-
-    class(err_mat) <- c("qmrerrmat", class(err_mat))
-    return(err_mat)
   }
 
   if (do_parallel) {
@@ -387,8 +387,6 @@ find_optimal_weight <- function(hist_mean_ecdf,
   } else {
     err_list <- lapply(1:length(hist_mean_vals), simulate_annealing)
   }
-
-  return(err_list)
 }
 
 return_minimum_error <- function(err_list) {
@@ -400,5 +398,4 @@ return_minimum_error <- function(err_list) {
     return(opt_weights_within_sample)
   })
   opt_weights <- dplyr::bind_rows(opt_weights)
-  return(opt_weights)
 }

@@ -288,26 +288,26 @@ core_qmap <- function(core_mean,
   means_ci <- construct_ci_from_distribution(opt_means_ecdf, opt_transformed_means, conf_alpha)
   sds_ci <- construct_ci_from_distribution(opt_sds_ecdf, opt_transformed_sds, conf_alpha)
 
-  coreqm_returnobj <- list(
-    opt_means = opt_transformed_means,
-    opt_means_ci = means_ci,
-    opt_sds = opt_transformed_sds,
-    opt_sds_ci = sds_ci,
-    opt_weights = opt_weights,
-    internal_data = df_to_transform,
-    orig_means_ecdf = hist_mean_ecdf,
-    orig_sds_ecdf = hist_sd_ecdf,
-    err_ecdf = err_ecdf,
-    adj_means_ecdf = adj_mean_ecdf,
-    adj_sds_ecdf = adj_sd_ecdf,
-    naive_means_ecdf = naive_mean_ecdf,
-    naive_sds_ecdf = naive_sd_ecdf,
-    opt_means_ecdf = opt_means_ecdf,
-    opt_sds_ecdf = opt_sds_ecdf,
-    weight_error_convergences = weight_error_convergences
+  coreqm_returnobj <- structure(
+    list(
+      opt_means = opt_transformed_means,
+      opt_means_ci = means_ci,
+      opt_sds = opt_transformed_sds,
+      opt_sds_ci = sds_ci,
+      opt_weights = opt_weights,
+      internal_data = df_to_transform,
+      orig_means_ecdf = hist_mean_ecdf,
+      orig_sds_ecdf = hist_sd_ecdf,
+      err_ecdf = err_ecdf,
+      adj_means_ecdf = adj_mean_ecdf,
+      adj_sds_ecdf = adj_sd_ecdf,
+      naive_means_ecdf = naive_mean_ecdf,
+      naive_sds_ecdf = naive_sd_ecdf,
+      opt_means_ecdf = opt_means_ecdf,
+      opt_sds_ecdf = opt_sds_ecdf,
+      weight_error_convergences = weight_error_convergences
+    ),
+    class = "coreqm"
   )
-  class(coreqm_returnobj) <- "coreqm"
-
-  return(coreqm_returnobj)
 }
 
