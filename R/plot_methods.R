@@ -17,10 +17,10 @@ plot.qmrecdf <- function(x,
                          ...) {
   if (ci) {
     x$p_lower_ci <- apply(x, 1, function(row) {
-      return(calc_wald_confint(x, row["prob"])[[1]])
+      return(calc_wald_confint(x, row["prob"], alpha = conf_alpha)[[1]])
     })
     x$p_upper_ci <- apply(x, 1, function(row) {
-      return(calc_wald_confint(x, row["prob"])[[2]])
+      return(calc_wald_confint(x, row["prob"], alpha = conf_alpha)[[2]])
     })
   }
 
